@@ -1,0 +1,74 @@
+<style>
+
+  :root {
+  --dark-1: #0a0a0a;
+  --light-1: #ffffff;
+}
+
+  
+  
+body {
+  background: var(--dark-1);
+  color: var(--light-1);
+/*   font-family: 'MuseoModerno', cursive; */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+  "Roboto", "Oxygen", "Ubuntu", "Helvetica Neue", Arial, sans-serif;
+  margin: 0;
+  text-align: center;
+}
+  
+  footer {
+  margin-top: 50px;
+  padding-top: 25px;
+  border-top: 1px solid lightgrey;
+  color: #c5c5c6;
+}
+
+</style>
+
+
+<noscript>
+  <center>
+<h3>
+  Your browser does not support JavaScript!
+  </h3>
+  </center>
+</noscript>
+
+  
+  <h1 id="title">
+    Express Directory Browsing
+  </h1>
+
+
+
+
+<p id="file-list"></p>
+
+<script>
+
+const files = `<%- files %>`
+      
+if(files.includes(`HTTPError:`)) {
+  
+    
+document.getElementById("file-list").innerHTML = `${files}`; 
+  
+} else {
+  
+  const files = <%- files %>
+      
+files.forEach(myFunction);
+
+function myFunction(item, index) {
+  document.getElementById("file-list").innerHTML += item + "<br>"; 
+}
+  
+}
+
+</script>
+
+
+<footer>
+  Made by <a href="https://nicsena.tk/">Nicsena</a> | v0.0.4 Alpha
+</footer>
