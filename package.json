@@ -1,0 +1,23 @@
+{
+  "name": "express-file-explorer",
+  "version": "0.3-alpha",
+  "description": "A web file explorer that allows you to browse directories and view files.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "ejs": "^3.1.5",
+    "got": "^11.7.0",
+    "fs-extra": "^9.0.1",
+    "sys": "^0.0.1"
+  },
+  "engines": {
+    "node": "12.x"
+  },
+  "repository": {
+    "url": "https://github.com/Nicsena/web-file-browser/"
+  },
+  "license": "MIT"
+}

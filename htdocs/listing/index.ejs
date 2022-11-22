@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+
+
+
+<noscript>
+         <center> <h1>
+          Your browser does not support JavaScript! 
+           </h1> </center>
+            
+      </noscript>
+
+  <link rel="icon" type="image/png" href="/favicon.png"/>
+
+<style>
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+  "Oxygen", "Ubuntu", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji",
+  "Segoe UI Emoji", "Segoe UI Symbol";
+  margin: 2em;
+  color: #ffffff;
+  white-space: pre-wrap;
+}
+  
+  
+
+h1, h2, h3, h4, h5 {
+  //font-style: italic;
+  color: #ffffff;
+}
+
+.bold {
+  font-weight: bold;
+}
+  
+    .button {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+  "Oxygen", "Ubuntu", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji",
+  "Segoe UI Emoji", "Segoe UI Symbol";
+/*   background-color: #242424; */
+  border: none;
+  color: white;
+  padding: 1em 0px;
+  text-align: left;
+  display: inline-block;
+  font-size: 13px;
+    margin-bottom:5px;
+/*   height:10%; */
+/*   line-height: 100%; */
+      width: 100%;
+      text-decoration: none;
+    
+}
+  
+
+.button:hover {
+  background-color: #343434;
+}
+
+.button:active {
+  box-shadow: none;
+}
+
+</style>
+
+<html lang="en">
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <div id="upone"><a href="../" class="button"><h3>&#8593; Go Up Parent Directory</h3><br></button></a> </div>
+  <a id="fileslist"></a>
+
+<script>
+
+const files = `<%- files %>`
+
+// if(files.length) {
+  
+// }
+
+if(!files || (files.length === "0")) {
+  
+  const files =  `No files in this directory!`
+  
+  document.getElementById("fileslist").innerHTML += files + "<br>"; 
+  
+}
+  
+  if(files.includes("An error has occurred reading this file. The error has been logged to the console.")) {
+
+
+    
+    document.getElementById("path").innerHTML = "<h1 <class='bold'>500 - Internal Server Error</h1> <h3> An server error has occurred reading this file. The error has been logged to the console.</h3> <br>"; 
+
+} else {
+
+    
+  if(files.includes(`An error has occurred. The error has been logged to the console.`)) {
+  
+  document.getElementById("fileslist").innerHTML = ""; 
+    document.getElementById("upone").innerHTML = ""
+      document.getElementById("path").innerHTML = "<h1 <class='bold'>500 - Internal Server Error</h1> <h3> An server error has occurred. The error has been logged to the console.</h3>"; 
+    
+} else {
+  
+  if(files.includes(`404 - Directory not found!`)) {
+    
+    const files = `404 - Directory not found`
+    
+      document.getElementById("fileslist").innerHTML += files + "<br>"; 
+  
+    
+  } else {
+
+
+  document.getElementById("fileslist").innerHTML += `${files}`; 
+
+    
+}
+
+}
+
+}
+  
+  </script>
+  
+  <script>
+  
+   if(document.location.pathname === "/listing/") {
+     document.getElementById("upone").innerHTML = "<h3>Root Directory:</h3>"
+   }
+    
+  </script>
+
+</html>
