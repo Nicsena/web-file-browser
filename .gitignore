@@ -1,3 +1,7 @@
+# Glitch Stuff
+.glitch-assets
+.glitchdotcom.json
+
 # Logs
 logs
 *.log
