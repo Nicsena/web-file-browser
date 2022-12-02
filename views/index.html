@@ -171,21 +171,25 @@ XMLHttp.onreadystatechange = function() {
     filesbrowser.innerHTML = ""
     filesbrowser.innerText = data
      
-}
-
     }
     
     if(this.status == 403) {
+      let content = JSON.parse(data);
+      filesbrowser.innerText = ""
       filesbrowser.innerHTML = `<h2 style="text-align: center;"> ${content["code"]} </h2> <h4 style="text-align: center;"> ${content["message"]} </h4> <h5 style="text-align: center;"> ${content["path"]} </h5>`
     }
     
     if(this.status == 404) {
+      let content = JSON.parse(data);
+      filesbrowser.innerText = ""
       filesbrowser.innerHTML = `<h2 style="text-align: center;"> ${content["code"]} </h2> <h4 style="text-align: center;"> ${content["message"]} </h4> <h5 style="text-align: center;"> ${content["path"]} </h5>`
     }
      
 
    
    }
+   
+}
     
     
 }

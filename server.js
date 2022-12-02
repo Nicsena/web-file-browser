@@ -132,26 +132,29 @@ app.get("/files", async (req, res) => {
   const path = req.query.directory;
   const list = getFiles(path);
 
-  if (list === "ENOENT")
+  if (list === "ENOENT") {
     return res.status(404).json({
       path: path,
       code: 404,
-      message: `Directory doesn't exist`,
+      message: `Directory doesn't exist`
     });
+  }
 
-  if (list === "EACCES")
+  if (list === "EACCES") {
     return res.status(403).json({
       path: path,
       code: 403,
-      message: `Forbidden`,
+      message: `Forbidden`
     });
+  }
 
-  if (list === "ENOTDIR")
+  if (list === "ENOTDIR") {
     return res.status(404).json({
       path: path,
       code: 404,
-      message: `Error 404`,
+      message: `Error 404`
     });
+  }
 
   res.status(200).json(list);
 });
@@ -160,26 +163,29 @@ app.get("/files/content", async (req, res) => {
   const file = req.query.file;
   const content = GetFileContent(file);
 
-  if (content === "ENOENT")
+  if (content === "ENOENT") {
     return res.status(404).json({
-      path: path,
+      path: file,
       code: 404,
-      message: `File doesn't exist`,
+      message: `File doesn't exist`
     });
+  }
 
-  if (content === "EACCES")
+  if (content === "EACCES") {
     return res.status(403).json({
-      path: path,
+      path: file,
       code: 403,
-      message: `Forbidden`,
+      message: `Forbidden`
     });
+  }
 
-  if (content === "ENOTDIR")
+  if (content === "ENOTDIR") {
     return res.status(404).json({
-      path: path,
+      path: file,
       code: 404,
-      message: `Error 404`,
+      message: `Error 404`
     });
+  }
 
   res.header("Content-Type", "text/plain;charset=UTF-8");
   res.status(200).send(content);
