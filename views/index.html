@@ -24,13 +24,12 @@
 window.onload = function () {
     load()
 }
-    
+ 
 let directory = "/";
-    
+       
 function load() {
-
-const filesbrowser = document.getElementById("browser")
-let files = []
+const filesbrowser = document.getElementById("browser")   
+let content = []
 const XMLHttp = new XMLHttpRequest();
 const url = `/files?directory=${directory}`
 
@@ -39,39 +38,43 @@ XMLHttp.send();
 
 XMLHttp.onreadystatechange = function() {
 
-	if(this.readyState == 4 && this.status == 200) {
-		let data = XMLHttp.responseText
-    let files = JSON.parse(data)
-  
-    
-  
-    
-   for (let i=0; i < files["list"].length; i++) {
+	if(this.readyState == 4) {
+    let data = XMLHttp.responseText
+    let content = JSON.parse(data)
      
+    if(this.status == 200) {
+    for (let i=0; i < content["list"].length; i++) {
+    
      // Directory
-     if(files["list"][i]["attributes"]["is_file"] === false) {
-      filesbrowser.innerHTML += '<button id="item" name="item" onclick="GoToDirectory(' + "\'" + files["list"][i]["name"] + "\/'" +')" type="button" class="btn btn-primary btn-block"> <i class="bi bi-folder"> ' +files["list"][i]["name"] +'<i> <div id="date" name="date">' +ConvertDate(files["list"][i]["attributes"]["modified_at"]) +'</div> <div id="size" name="size">' +files["list"][i]["attributes"]["size"]+'</div> </button>'  
+     if(content["list"][i]["attributes"]["is_file"] === false) {
+      filesbrowser.innerHTML += '<button id="item" name="item" onclick="GoToDirectory(' + "\'" + content["list"][i]["name"] + "\/'" +')" type="button" class="btn btn-primary btn-block"> <i class="bi bi-folder"> ' +content["list"][i]["name"] +'<i> <div id="date" name="date">' +ConvertDate(content["list"][i]["attributes"]["modified_at"]) +'</div> <div id="size" name="size">' +content["list"][i]["attributes"]["size"]+'</div> </button>'  
      }
      
-    // File 
-    if(files["list"][i]["attributes"]["is_file"] === true) {
-      filesbrowser.innerHTML += `<button id="item" name="item" type="button" class="btn btn-primary btn-block"> <i class="bi bi-file-earmark"> ${files["list"][i]["name"]} </i> <div id="date" name="date">${ConvertDate(files["list"][i]["attributes"]["modified_at"])}</div> <div id="size" name="size">${files["list"][i]["attributes"]["size"]}</div> </button>`  
+     // File 
+    if(content["list"][i]["attributes"]["is_file"] === true) {
+      //filesbrowser.innerHTML += `<button id="item" name="item" type="button" class="btn btn-primary btn-block"> <i class="bi bi-file-earmark"> ${content["list"][i]["name"]} </i> <div id="date" name="date">${ConvertDate(content["list"][i]["attributes"]["modified_at"])}</div> <div id="size" name="size">${content["list"][i]["attributes"]["size"]}</div> </button>`  
+     filesbrowser.innerHTML += '<button id="item" name="item" onclick="ViewFile(' + "\'" +directorypath + content["list"][i]["name"] + "\'" +')" type="button" class="btn btn-primary btn-block"> <i class="bi bi-file-earmark"> ' +content["list"][i]["name"] +'<i> <div id="date" name="date">' +ConvertDate(content["list"][i]["attributes"]["modified_at"]) +'</div> <div id="size" name="size">' +content["list"][i]["attributes"]["size"]+'</div> </button>'   
      }
-     
-
    
-   }
+    }
+   
+    }
+    
+    if(this.status == 403) {
+      filesbrowser.innerHTML = `<h2 style="text-align: center;"> ${content["code"]} </h2> <h4 style="text-align: center;"> ${content["message"]} </h4> <h5 style="text-align: center;"> ${content["path"]} </h5>`
+    }
+    
+    if(this.status == 404) {
+      filesbrowser.innerHTML = `<h2 style="text-align: center;"> ${content["code"]} </h2> <h4 style="text-align: center;"> ${content["message"]} </h4> <h5 style="text-align: center;"> ${content["path"]} </h5>`
+    }
     
     
 	}
-
-
-}
-
   
 }
 
-    
+}
+  
 function ConvertDate(date) {
   return new Date(date).toLocaleString();
 }
@@ -85,9 +88,8 @@ GoToDirectory(directory)
     
   
 function GoToDirectory(path) {
-
-const filesbrowser = document.getElementById("browser")
-let files = []
+const filesbrowser = document.getElementById("browser")  
+let content = []
 const XMLHttp = new XMLHttpRequest();
 directorypath = directory + path
 const url = `/files?directory=${directorypath}`
@@ -96,39 +98,99 @@ XMLHttp.open("GET", url);
 XMLHttp.send();
 
 filesbrowser.innerHTML = ""
+filesbrowser.innerText = ""
   
 XMLHttp.onreadystatechange = function() {
 
-	if(this.readyState == 4 && this.status == 200) {
-		let data = XMLHttp.responseText
-    let files = JSON.parse(data)
-    let directory = files["path"] + "/";
+	if(this.readyState == 4) {
+  		let data = XMLHttp.responseText
+      let content = JSON.parse(data)
+  
+    if(this.status == 200) {
+    let directory = content["path"] + "/";
     
     
-   for (let i=0; i < files["list"].length; i++) {
+   for (let i=0; i < content["list"].length; i++) {
      
      // Directory
-     if(files["list"][i]["attributes"]["is_file"] === false) {
-      filesbrowser.innerHTML += '<button id="item" name="item" onclick="GoToDirectory(' + "\'" +directorypath + files["list"][i]["name"] + "\/'" +')" type="button" class="btn btn-primary btn-block"> <i class="bi bi-folder"> ' +files["list"][i]["name"] +'<i> <div id="date" name="date">' +ConvertDate(files["list"][i]["attributes"]["modified_at"]) +'</div> <div id="size" name="size">' +files["list"][i]["attributes"]["size"]+'</div> </button>'  
+     if(content["list"][i]["attributes"]["is_file"] === false) {
+      filesbrowser.innerHTML += '<button id="item" name="item" onclick="GoToDirectory(' + "\'" +directorypath + content["list"][i]["name"] + "\/'" +')" type="button" class="btn btn-primary btn-block"> <i class="bi bi-folder"> ' +content["list"][i]["name"] +'<i> <div id="date" name="date">' +ConvertDate(content["list"][i]["attributes"]["modified_at"]) +'</div> <div id="size" name="size">' +content["list"][i]["attributes"]["size"]+'</div> </button>'  
      }
      
     // File 
-    if(files["list"][i]["attributes"]["is_file"] === true) {
-      filesbrowser.innerHTML += `<button id="item" name="item" type="button" class="btn btn-primary btn-block"> <i class="bi bi-file-earmark"> ${files["list"][i]["name"]} </i> <div id="date" name="date">${ConvertDate(files["list"][i]["attributes"]["modified_at"])}</div> <div id="size" name="size">${files["list"][i]["attributes"]["size"]}</div> </button>`  
+    if(content["list"][i]["attributes"]["is_file"] === true) {
+    //filesbrowser.innerHTML += `<button id="item" name="item" type="button" class="btn btn-primary btn-block"> <i class="bi bi-file-earmark"> ${content["list"][i]["name"]} </i> <div id="date" name="date">${ConvertDate(content["list"][i]["attributes"]["modified_at"])}</div> <div id="size" name="size">${content["list"][i]["attributes"]["size"]}</div> </button>`  
+    filesbrowser.innerHTML += '<button id="item" name="item" onclick="ViewFile(' + "\'" +directorypath + content["list"][i]["name"] + "\'" +')" type="button" class="btn btn-primary btn-block"> <i class="bi bi-file-earmark"> ' +content["list"][i]["name"] +'<i> <div id="date" name="date">' +ConvertDate(content["list"][i]["attributes"]["modified_at"]) +'</div> <div id="size" name="size">' +content["list"][i]["attributes"]["size"]+'</div> </button>'   
      }
+     
+}
+
+    }
+    
+    if(this.status == 403) {
+      filesbrowser.innerHTML = `<h2 style="text-align: center;"> ${content["code"]} </h2> <h4 style="text-align: center;"> ${content["message"]} </h4> <h5 style="text-align: center;"> ${content["path"]} </h5>`
+    }
+    
+    if(this.status == 404) {
+      filesbrowser.innerHTML = `<h2 style="text-align: center;"> ${content["code"]} </h2> <h4 style="text-align: center;"> ${content["message"]} </h4> <h5 style="text-align: center;"> ${content["path"]} </h5>`
+    }
      
 
    
    }
     
     
-	}
+}
 
 
 }
+
+
+function ViewFile(path) {
+const filesbrowser = document.getElementById("browser")  
+let content = []
+const XMLHttp = new XMLHttpRequest();
+directorypath = directory + path
+const url = `/files/content?file=${directorypath}`
+
+XMLHttp.open("GET", url);
+XMLHttp.send();
+
+filesbrowser.innerHTML = ""
+filesbrowser.innerText = ""
   
+XMLHttp.onreadystatechange = function() {
+
+	if(this.readyState == 4) {
+  		let data = XMLHttp.responseText
+      let content = data
+  
+    if(this.status == 200) {
+    let directory = path + "/";
+    
+    filesbrowser.innerHTML = ""
+    filesbrowser.innerText = data
+     
 }
-  
+
+    }
+    
+    if(this.status == 403) {
+      filesbrowser.innerHTML = `<h2 style="text-align: center;"> ${content["code"]} </h2> <h4 style="text-align: center;"> ${content["message"]} </h4> <h5 style="text-align: center;"> ${content["path"]} </h5>`
+    }
+    
+    if(this.status == 404) {
+      filesbrowser.innerHTML = `<h2 style="text-align: center;"> ${content["code"]} </h2> <h4 style="text-align: center;"> ${content["message"]} </h4> <h5 style="text-align: center;"> ${content["path"]} </h5>`
+    }
+     
+
+   
+   }
+    
+    
+}
+
+
   </script>
   
   

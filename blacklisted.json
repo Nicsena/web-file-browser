@@ -7,5 +7,7 @@
   ".glitchdotcom.json",
   ".data",
   ".node-gyp",
-  "blacklisted.json"
+  "blacklisted.json",
+  ".envrc",
+  ".dockerenv"
 ]
