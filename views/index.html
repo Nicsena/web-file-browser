@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<body>
+  
+  <title>Terminal</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="icon" type="image/png" href="/favicon.png"/>
+  <script src="https://code.jquery.com/jquery-3.6.1.js"></script>
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inconsolata">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+  
+  
+  <script src="/js/script.js"></script>
+  <link rel="stylesheet" href="/css/style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js" integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css">
+  
+
+  <script>
+window.onload = function () {
+    load()
+}
+    
+let directory = "/";
+    
+function load() {
+
+const filesbrowser = document.getElementById("browser")
+let files = []
+const XMLHttp = new XMLHttpRequest();
+const url = `/files?directory=${directory}`
+
+XMLHttp.open("GET", url);
+XMLHttp.send();
+
+XMLHttp.onreadystatechange = function() {
+
+	if(this.readyState == 4 && this.status == 200) {
+		let data = XMLHttp.responseText
+    let files = JSON.parse(data)
+  
+    
+  
+    
+   for (let i=0; i < files["list"].length; i++) {
+     
+     // Directory
+     if(files["list"][i]["attributes"]["is_file"] === false) {
+      filesbrowser.innerHTML += '<button id="item" name="item" onclick="GoToDirectory(' + "\'" + files["list"][i]["name"] + "\/'" +')" type="button" class="btn btn-primary btn-block"> <i class="bi bi-folder"> ' +files["list"][i]["name"] +'<i> <div id="date" name="date">' +ConvertDate(files["list"][i]["attributes"]["modified_at"]) +'</div> <div id="size" name="size">' +files["list"][i]["attributes"]["size"]+'</div> </button>'  
+     }
+     
+    // File 
+    if(files["list"][i]["attributes"]["is_file"] === true) {
+      filesbrowser.innerHTML += `<button id="item" name="item" type="button" class="btn btn-primary btn-block"> <i class="bi bi-file-earmark"> ${files["list"][i]["name"]} </i> <div id="date" name="date">${ConvertDate(files["list"][i]["attributes"]["modified_at"])}</div> <div id="size" name="size">${files["list"][i]["attributes"]["size"]}</div> </button>`  
+     }
+     
+
+   
+   }
+    
+    
+	}
+
+
+}
+
+  
+}
+
+    
+function ConvertDate(date) {
+  return new Date(date).toLocaleString();
+}
+
+function GoHome() {
+
+directory = "/"
+GoToDirectory(directory)
+  
+}
+    
+  
+function GoToDirectory(path) {
+
+const filesbrowser = document.getElementById("browser")
+let files = []
+const XMLHttp = new XMLHttpRequest();
+directorypath = directory + path
+const url = `/files?directory=${directorypath}`
+
+XMLHttp.open("GET", url);
+XMLHttp.send();
+
+filesbrowser.innerHTML = ""
+  
+XMLHttp.onreadystatechange = function() {
+
+	if(this.readyState == 4 && this.status == 200) {
+		let data = XMLHttp.responseText
+    let files = JSON.parse(data)
+    let directory = files["path"] + "/";
+    
+    
+   for (let i=0; i < files["list"].length; i++) {
+     
+     // Directory
+     if(files["list"][i]["attributes"]["is_file"] === false) {
+      filesbrowser.innerHTML += '<button id="item" name="item" onclick="GoToDirectory(' + "\'" +directorypath + files["list"][i]["name"] + "\/'" +')" type="button" class="btn btn-primary btn-block"> <i class="bi bi-folder"> ' +files["list"][i]["name"] +'<i> <div id="date" name="date">' +ConvertDate(files["list"][i]["attributes"]["modified_at"]) +'</div> <div id="size" name="size">' +files["list"][i]["attributes"]["size"]+'</div> </button>'  
+     }
+     
+    // File 
+    if(files["list"][i]["attributes"]["is_file"] === true) {
+      filesbrowser.innerHTML += `<button id="item" name="item" type="button" class="btn btn-primary btn-block"> <i class="bi bi-file-earmark"> ${files["list"][i]["name"]} </i> <div id="date" name="date">${ConvertDate(files["list"][i]["attributes"]["modified_at"])}</div> <div id="size" name="size">${files["list"][i]["attributes"]["size"]}</div> </button>`  
+     }
+     
+
+   
+   }
+    
+    
+	}
+
+
+}
+  
+}
+  
+  </script>
+  
+  
+  
+<div id="page" name="page" class="container p-3 my-3 no-border rounded">
+  
+  
+<p name="header" id="header">
+  <h3> Web File Browser</h3>
+</p>
+  
+  
+  <div id="container" name="container" class="container-fluid p-3 no-border rounded-top">
+    
+    
+    
+    <div id="buttons" name="buttons" class="container-fluid p-2 no-border rounded-top">
+      <button type="button" onclick="GoHome()" class="btn btn-dark">Go Home</button>
+      <button type="button" onclick="GoToDirectory('../')" class="btn btn-dark">Go Back</button>
+    </div>
+    
+  <div id="browser" name="browser" class="container-fluid p-2 no-border rounded-top">
+  
+
+    
+  </div>
+    
+
+    
+  </div>
+
+
+</div>
+  
+</body>
+</html>
