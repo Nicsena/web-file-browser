@@ -1,0 +1,59 @@
+html,
+body {
+line-height: 1.15;
+background-color: #121212;
+color: #ffffff;
+}
+
+#page {
+  max-height: 100%;
+  background-color: #202020;
+}
+
+#page #header {
+  
+  text-align: center;
+}
+
+
+
+#page #container #buttons {
+ background-color: #161616;
+
+}
+
+#page #container #browser {
+  background-color: #161616;
+  min-height:20vh;
+  height:75vh;
+  max-height:100%;
+  overflow-x: auto;
+}
+
+#page #container #browser #item {
+    display: block;
+    text-align: left;
+    overflow-x: auto;
+    white-space: pre-line;
+    word-wrap: break-word;
+    padding: 10px;
+}
+
+#page #browser #item i {
+font-style: normal;
+}
+
+#page #container #browser #item #size {
+    float: right;
+}
+
+#page #container #browser #item #date {
+    float: right;
+    margin-left: 15px;
+}
+
+
+
+#footer {
+text-align: center;
+}
