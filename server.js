@@ -5,6 +5,7 @@ const path = require('path');
 const port = process.env.PORT || "3000"
 const blacklistedfiles = require("./blacklisted.json")
 
+
 const defaultPath = '/'
 
 // ---- Functions -----
