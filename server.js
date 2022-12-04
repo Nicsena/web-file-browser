@@ -8,6 +8,7 @@ const verbose = process.env.VERBOSE || "false";
 
 const defaultPath = "/";
 
+
 // ---- Functions -----
 
 function formatBytes(bytes, decimals = 2) {
