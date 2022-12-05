@@ -57,8 +57,8 @@ XMLHttp.onreadystatechange = function() {
      
      // File 
     if(content["list"][i]["attributes"]["is_file"] === true) {
-      filesbrowser.innerHTML += `<button id="item" name="item" type="button" class="btn btn-primary btn-block"> <i class="bi bi-file-earmark"> ${content["list"][i]["name"]} </i> <div id="date" name="date">${ConvertDate(content["list"][i]["attributes"]["modified_at"])}</div> <div id="size" name="size">${content["list"][i]["attributes"]["size"]}</div> </button>`  
-     //filesbrowser.innerHTML += '<button id="item" name="item" onclick="ViewFile(' + "\'" +directory + content["list"][i]["name"] + "\'" +')" type="button" class="btn btn-primary btn-block"> <i class="bi bi-file-earmark"> ' +content["list"][i]["name"] +'<i> <div id="date" name="date">' +ConvertDate(content["list"][i]["attributes"]["modified_at"]) +'</div> <div id="size" name="size">' +content["list"][i]["attributes"]["size"]+'</div> </button>'   
+      //filesbrowser.innerHTML += `<button id="item" name="item" type="button" class="btn btn-primary btn-block"> <i class="bi bi-file-earmark"> ${content["list"][i]["name"]} </i> <div id="date" name="date">${ConvertDate(content["list"][i]["attributes"]["modified_at"])}</div> <div id="size" name="size">${content["list"][i]["attributes"]["size"]}</div> </button>`  
+     filesbrowser.innerHTML += '<button id="item" name="item" onclick="ViewFile(' + "\'" +directory + content["list"][i]["name"] + "\'" +')" type="button" class="btn btn-primary btn-block"> <i class="bi bi-file-earmark"> ' +content["list"][i]["name"] +'<i> <div id="date" name="date">' +ConvertDate(content["list"][i]["attributes"]["modified_at"]) +'</div> <div id="size" name="size">' +content["list"][i]["attributes"]["size"]+'</div> </button>'   
       
     }
    
