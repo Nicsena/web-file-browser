@@ -27,17 +27,6 @@ window.onload = function () {
  
 let directory = "/";
  
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function chunk(arr, chunkSize) {
-    var R = [];
-    for (var i = 0; i < arr.length; i += chunkSize)
-        R.push(arr.slice(i, i + chunkSize));
-    return R;
-}
-
 function load() {
 const filesbrowser = document.getElementById("browser")   
 let content = []
@@ -60,13 +49,14 @@ XMLHttp.onreadystatechange = function() {
 
      // Directory
      if(content["list"][i]["attributes"]["is_file"] === false) {
-      filesbrowser.innerHTML += '<button id="item" name="item" onclick="GoToDirectory(' + "\'" + content["list"][i]["name"] + "\/'" +')" type="button" class="btn btn-primary btn-block"> <i class="bi bi-folder"> ' +content["list"][i]["name"] +'<i> <div id="date" name="date">' +ConvertDate(content["list"][i]["attributes"]["modified_at"]) +'</div> <div id="size" name="size">' +content["list"][i]["attributes"]["size"]+'</div> </button>'  
-     }
+      //filesbrowser.innerHTML += '<button id="item" name="item" onclick="GoToDirectory(' + "\'" + content["list"][i]["name"] + "\/'" +')" type="button" class="btn btn-primary btn-block"> <i class="bi bi-folder"> ' +content["list"][i]["name"] +'<i> <div id="date" name="date">' +ConvertDate(content["list"][i]["attributes"]["modified_at"]) +'</div> <div id="size" name="size">' +content["list"][i]["attributes"]["size"]+'</div> </button>'  
+        filesbrowser.innerHTML += '<button id="item" name="item" onclick="GoToDirectory(' + "\'" +directory + content["list"][i]["name"] + "\/'" +')" type="button" class="btn btn-primary btn-block"> <i class="bi bi-folder"> ' +content["list"][i]["name"] +'<i> <div id="date" name="date">' +ConvertDate(content["list"][i]["attributes"]["modified_at"]) +'</div> <div id="size" name="size">' +content["list"][i]["attributes"]["size"]+'</div> </button>'  
+      }
      
      // File 
     if(content["list"][i]["attributes"]["is_file"] === true) {
-      //filesbrowser.innerHTML += `<button id="item" name="item" type="button" class="btn btn-primary btn-block"> <i class="bi bi-file-earmark"> ${content["list"][i]["name"]} </i> <div id="date" name="date">${ConvertDate(content["list"][i]["attributes"]["modified_at"])}</div> <div id="size" name="size">${content["list"][i]["attributes"]["size"]}</div> </button>`  
-     filesbrowser.innerHTML += '<button id="item" name="item" onclick="ViewFile(' + "\'" +directory + content["list"][i]["name"] + "\'" +')" type="button" class="btn btn-primary btn-block"> <i class="bi bi-file-earmark"> ' +content["list"][i]["name"] +'<i> <div id="date" name="date">' +ConvertDate(content["list"][i]["attributes"]["modified_at"]) +'</div> <div id="size" name="size">' +content["list"][i]["attributes"]["size"]+'</div> </button>'   
+      filesbrowser.innerHTML += `<button id="item" name="item" type="button" class="btn btn-primary btn-block"> <i class="bi bi-file-earmark"> ${content["list"][i]["name"]} </i> <div id="date" name="date">${ConvertDate(content["list"][i]["attributes"]["modified_at"])}</div> <div id="size" name="size">${content["list"][i]["attributes"]["size"]}</div> </button>`  
+     //filesbrowser.innerHTML += '<button id="item" name="item" onclick="ViewFile(' + "\'" +directory + content["list"][i]["name"] + "\'" +')" type="button" class="btn btn-primary btn-block"> <i class="bi bi-file-earmark"> ' +content["list"][i]["name"] +'<i> <div id="date" name="date">' +ConvertDate(content["list"][i]["attributes"]["modified_at"]) +'</div> <div id="size" name="size">' +content["list"][i]["attributes"]["size"]+'</div> </button>'   
       
     }
    
@@ -131,16 +121,16 @@ XMLHttp.onreadystatechange = function() {
      
      // Directory
      if(content["list"][i]["attributes"]["is_file"] === false) {
-      //filesbrowser.innerHTML += '<button id="item" name="item" onclick="GoToDirectory(' + "\'" +directorypath + content["list"][i]["name"] + "\/'" +')" type="button" class="btn btn-primary btn-block"> <i class="bi bi-folder"> ' +content["list"][i]["name"] +'<i> <div id="date" name="date">' +ConvertDate(content["list"][i]["attributes"]["modified_at"]) +'</div> <div id="size" name="size">' +content["list"][i]["attributes"]["size"]+'</div> </button>'  
-        filesbrowser.innerHTML += '<button id="item" name="item" onclick="GoToDirectory(' + "\'" +content["list"][i]["path"] + "\/'" +')" type="button" class="btn btn-primary btn-block"> <i class="bi bi-folder"> ' +content["list"][i]["name"] +'<i> <div id="date" name="date">' +ConvertDate(content["list"][i]["attributes"]["modified_at"]) +'</div> <div id="size" name="size">' +content["list"][i]["attributes"]["size"]+'</div> </button>'  
+      filesbrowser.innerHTML += '<button id="item" name="item" onclick="GoToDirectory(' + "\'" +directorypath + content["list"][i]["name"] + "\/'" +')" type="button" class="btn btn-primary btn-block"> <i class="bi bi-folder"> ' +content["list"][i]["name"] +'<i> <div id="date" name="date">' +ConvertDate(content["list"][i]["attributes"]["modified_at"]) +'</div> <div id="size" name="size">' +content["list"][i]["attributes"]["size"]+'</div> </button>'  
+       // filesbrowser.innerHTML += '<button id="item" name="item" onclick="GoToDirectory(' + "\'" +content["list"][i]["path"] + "\/'" +')" type="button" class="btn btn-primary btn-block"> <i class="bi bi-folder"> ' +content["list"][i]["name"] +'<i> <div id="date" name="date">' +ConvertDate(content["list"][i]["attributes"]["modified_at"]) +'</div> <div id="size" name="size">' +content["list"][i]["attributes"]["size"]+'</div> </button>'  
       }
      
     // File 
     if(content["list"][i]["attributes"]["is_file"] === true) {
     //filesbrowser.innerHTML += `<button id="item" name="item" type="button" class="btn btn-primary btn-block"> <i class="bi bi-file-earmark"> ${content["list"][i]["name"]} </i> <div id="date" name="date">${ConvertDate(content["list"][i]["attributes"]["modified_at"])}</div> <div id="size" name="size">${content["list"][i]["attributes"]["size"]}</div> </button>`  
-    //filesbrowser.innerHTML += '<button id="item" name="item" onclick="ViewFile(' + "\'" +directorypath + content["list"][i]["name"] + "\'" +')" type="button" class="btn btn-primary btn-block"> <i class="bi bi-file-earmark"> ' +content["list"][i]["name"] +'<i> <div id="date" name="date">' +ConvertDate(content["list"][i]["attributes"]["modified_at"]) +'</div> <div id="size" name="size">' +content["list"][i]["attributes"]["size"]+'</div> </button>'   
+    filesbrowser.innerHTML += '<button id="item" name="item" onclick="ViewFile(' + "\'" +directorypath + content["list"][i]["name"] + "\'" +')" type="button" class="btn btn-primary btn-block"> <i class="bi bi-file-earmark"> ' +content["list"][i]["name"] +'<i> <div id="date" name="date">' +ConvertDate(content["list"][i]["attributes"]["modified_at"]) +'</div> <div id="size" name="size">' +content["list"][i]["attributes"]["size"]+'</div> </button>'   
       
-      filesbrowser.innerHTML += '<button id="item" name="item" onclick="ViewFile(' + "\'" +content["list"][i]["path"] + "\'" +')" type="button" class="btn btn-primary btn-block"> <i class="bi bi-file-earmark"> ' +content["list"][i]["name"] +'<i> <div id="date" name="date">' +ConvertDate(content["list"][i]["attributes"]["modified_at"]) +'</div> <div id="size" name="size">' +content["list"][i]["attributes"]["size"]+'</div> </button>'    
+      //filesbrowser.innerHTML += '<button id="item" name="item" onclick="ViewFile(' + "\'" +content["list"][i]["path"] + "\'" +')" type="button" class="btn btn-primary btn-block"> <i class="bi bi-file-earmark"> ' +content["list"][i]["name"] +'<i> <div id="date" name="date">' +ConvertDate(content["list"][i]["attributes"]["modified_at"]) +'</div> <div id="size" name="size">' +content["list"][i]["attributes"]["size"]+'</div> </button>'    
       }
      
 }

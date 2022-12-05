@@ -1,3 +1,1 @@
-Hello
-
-Hello
+Test write from /files/write endpoint (method: POST)

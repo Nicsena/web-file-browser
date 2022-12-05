@@ -4,13 +4,14 @@ const express = require("express");
 const app = express();
 const fs = require("fs");
 const path = require("path");
+const bodyParser = require('body-parser')
 const port = process.env.PORT || "3000";
-const blacklistedfiles = require("./blacklisted.json");
 const verbose = process.env.VERBOSE || "false";
 const logrequests = process.env.LOGREQUESTS || "false"
+const ReadOnlyMode = process.env.READONLY || "false"
 let requests = 1;
 
-const defaultPath = "/";
+const defaultPath = __dirname + "/";
 
 
 // =================== Functions ===================
@@ -37,8 +38,10 @@ function formatBytes(bytes, decimals = 2) {
 // ======================================================
 async function getFiles(directory) {
   const fullPath = path.join(defaultPath + path.resolve(directory) + "/");
-
+  
   if(verbose === "true") console.log(`Directory: ${fullPath}`);
+
+  if(directory.substr(0, 1) !== "/") return "FAILED"
 
   try {
     const items = fs.readdirSync(fullPath, { withFileTypes: true });
@@ -46,12 +49,6 @@ async function getFiles(directory) {
 
     // Read Directory and Loop through files.
     items.forEach((item) => {
-      // Don't add files/directories that is in the blacklist.
-      if (blacklistedfiles.includes(item.name)) {
-        if (item.isDirectory()) return console.log(`Blacklisted Folder: ${item.name}`);
-        if (item.isFile()) return console.log(`Blacklisted File: ${item.name}`);
-        if (item.isSymbolicLink()) return console.log(`Blacklisted Symbolic Link: ${item.name}`);
-      }
 
       // Get Stats for and push them to a array.
       const iteminfo = fs.statSync(fullPath + item.name);
@@ -73,7 +70,7 @@ async function getFiles(directory) {
       list.push(json);
     });
 
-    return { path: "/", list: list };
+    return { path: path.resolve(directory), list: list };
 
 
   } catch (error) {
@@ -107,11 +104,13 @@ async function getFiles(directory) {
 async function GetFileContent(file) {
   const fullPath = path.join(defaultPath, path.resolve(file));
 
+
   if(verbose === "true") console.log(`File: ${fullPath}`)
 
   try {
     const content = fs.readFileSync(fullPath, "utf8");
     return content.toString("utf8");
+
   } catch (error) {
     if (error.code === "ENOENT") {
       console.log(`ENOENT: File Not Found - Path: ${fullPath}`);
@@ -123,9 +122,9 @@ async function GetFileContent(file) {
       return "EACCES";
     }
 
-    if (error.code === "ENOTDIR") {
-      console.log(`ENOTDIR: Not a directory - Path: ${fullPath}`);
-      return "ENOTDIR";
+    if (error.code === "EISDIR") {
+      console.log(`EISDIR: Not a directory - Path: ${fullPath}`);
+      return "EISDIR";
     }
 
     console.error(error);
@@ -145,11 +144,20 @@ async function GetFileContent(file) {
 async function writeContentToFile(file, content) {
   const fullPath = path.join(defaultPath, path.resolve(file));
 
-  if(verbose === "true") console.log(`File: ${fullPath}\nContent: ${content}`)
+  if(ReadOnlyMode === "true") return "READONLY-MODE-ENABLED";
+
+  if(verbose === "true") console.log(`File: ${fullPath}\nContent: ${content}`);
+
+  if(file.substr(0, 1) !== "/") return "FAILED"
 
   try {
-    const file = fs.writeFileSync(fullPath, content);
-    return "";
+
+    if (!fs.existsSync(fullPath)){
+      fs.writeFileSync(fullPath, decodeURIComponent(content), { encoding: "utf8", flag: 'w'});
+      return "NewFile-Success"
+    }
+
+    return "Success";
 
   } catch (error) {
     if (error.code === "ENOENT") {
@@ -162,9 +170,9 @@ async function writeContentToFile(file, content) {
       return "EACCES";
     }
 
-    if (error.code === "ENOTDIR") {
-      console.log(`ENOTDIR: Not a directory - Path: ${fullPath}`);
-      return "ENOTDIR";
+    if (error.code === "EISDIR") {
+      console.log(`EISDIR: illegal operation on a directory - Path: ${fullPath}`);
+      return "EISDIR";
     }
 
     console.error(error);
@@ -175,10 +183,131 @@ async function writeContentToFile(file, content) {
 
 
 
+// ======================================================
+// This function makes a new spcified directory.
+//
+// Example:
+// makeNewFolder("/example")
+// ======================================================
+async function makeNewFolder(folder) {
+  const fullPath = path.join(defaultPath, path.resolve(folder));
+
+  if(ReadOnlyMode === "true") return "READONLY-MODE-ENABLED";
+
+  if(verbose === "true") console.log(`Folder: ${fullPath}`);
+
+  if(folder.substr(0, 1) !== "/") return "FAILED"
+
+  try {
+
+    if (!fs.existsSync(fullPath)){
+      fs.mkdirSync(fullPath, { recursive: true });
+      return "Success"
+    }
+
+    return "Existing";
+
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      console.log(`ENOENT: Folder Not Found - Path: ${fullPath}`);
+      return "ENOENT";
+    }
+
+    if (error.code === "EACCES") {
+      console.log(`EACCES: Permission denied - Path: ${fullPath}`);
+      return "EACCES";
+    }
+
+
+    console.error(error);
+  }
+}
+
+
+
+
+
+
+
+// ======================================================
+// This function deletes a specified file/directory.
+//
+// Example:
+// deleteFileDirectory("/example")
+// ======================================================
+async function deleteFileDirectory(file) {
+  const fullPath = path.join(defaultPath, path.resolve(file));
+
+  if(ReadOnlyMode === "true") return "READONLY-MODE-ENABLED";
+
+  if(verbose === "true") console.log(`File/Directory: ${fullPath}`);
+
+  if(file.substr(0, 1) !== "/") return "FAILED"
+
+  try {
+
+    if (fs.existsSync(fullPath)){
+
+      const item = fs.statSync(fullPath);
+      if(item.isFile() === true) {
+        await fs.unlinkSync(fullPath)
+        if(verbose === "true") { console.log (`Deleted File: ${file} - Path: ${fullPath}`)}
+        return "Success"
+      }
+
+      if(item.isSymbolicLink() === true) {
+        await fs.unlinkSync(fullPath)
+        if(verbose === "true") { console.log (`Deleted Symbolic Link: ${file} - Path: ${fullPath}`)}
+        return "Success"
+      }
+      
+      if(item.isDirectory() === true) {
+        await fs.rmSync(fullPath, { recursive: true })
+        if(verbose === "true") { console.log (`Deleted Folder: ${file} - Path: ${fullPath}`)}
+        return "Success"
+      }
+
+      return "FAILED"
+
+    }
+
+    return "ENOENT";
+
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      console.log(`ENOENT: Folder Not Found - Path: ${fullPath}`);
+      return "ENOENT";
+    }
+
+    if (error.code === "EACCES") {
+      console.log(`EACCES: Permission denied - Path: ${fullPath}`);
+      return "EACCES";
+    }
+
+    if (error.code === "EISDIR") {
+      console.log(`EISDIR: illegal operation on a directory - Path: ${fullPath}`);
+      return "EISDIR";
+    }
+
+
+    console.error(error);
+  }
+}
+
+
+
+
+
+
+
+
+
+
 // =================== Express Web Server ===================
 
 app.use(express.static("public"));
 app.enable("trust proxy");
+app.use(bodyParser.json({ extended: false })); 
 
 
 app.use((req, res, next) => {
@@ -213,6 +342,7 @@ app.get("*", (req, res, next) => {
 
 
 
+
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/views/index.html");
 });
@@ -223,6 +353,7 @@ app.get("/", (req, res) => {
 
 // ======================================================
 // Files Endpoint: /files
+// Method: GET
 // This returns JSON result with files and directories
 // of a directory.
 //
@@ -232,6 +363,7 @@ app.get("/", (req, res) => {
 app.get("/files", async (req, res) => {
   const directory = path.join(req.query.directory);
   const list = await getFiles(directory);
+  res.header('Content-Type', 'application/json');
 
   if (list === "ENOENT") {
     return res.status(404).json({
@@ -257,6 +389,14 @@ app.get("/files", async (req, res) => {
     });
   }
 
+  if (list === "FAILED") {
+    return res.status(500).json({
+      path: directory,
+      code: 500,
+      message: `Internal Server Error`
+    });
+  }
+
   res.status(200).json(list);
 });
 
@@ -264,14 +404,15 @@ app.get("/files", async (req, res) => {
 
 // ======================================================
 // Files Endpoint: /files/content
+// Method: GET
 // This endpoint returns contents of a file.
 //
 // Example:
 // http://127.0.0.1:3000/files/content?file=/hello.txt
 // ======================================================
 app.get("/files/content", async (req, res) => {
-  const file = req.query.file;
-  const content = GetFileContent(file);
+  const file = path.join(req.query.file);
+  const content = await GetFileContent(file);
 
   if (content === "ENOENT") {
     return res.status(404).json({
@@ -289,17 +430,242 @@ app.get("/files/content", async (req, res) => {
     });
   }
 
-  if (content === "ENOTDIR") {
-    return res.status(404).json({
+  if (result === "EISDIR") {
+    return res.status(500).json({
       path: file,
-      code: 404,
-      message: `Error 404`
+      code: 500,
+      message: `Internal Server Error`
     });
   }
 
   res.header("Content-Type", "text/plain;charset=UTF-8");
   res.status(200).send(content);
 });
+
+
+// ======================================================
+// Files Endpoint: /files/write
+// Method: POST
+// This endpoint is to write content to a file.
+//
+// ======================================================
+app.post("/files/write", async (req, res) => {
+  const file = req.query.file;
+  const content = req.body.content;
+  const result = await writeContentToFile(file, content);
+
+  if (ReadOnlyMode === "true") {
+    return res.status(409).json({
+      path: file,
+      code: 409,
+      message: `Read-Only Mode is enabled. Unable to write to file.`
+    });
+  }
+
+  if (result === "NewFile-Success") {
+    return res.status(201).json({
+      path: file,
+      code: 201,
+      message: `Successfully made a new file and wrote to file!`
+    });
+  }
+
+  if (result === "Success") {
+    return res.status(200).json({
+      path: file,
+      code: 200,
+      message: `Successfully updated file!`
+    });
+  }
+
+  if (result === "FAILED") {
+    return res.status(500).json({
+      path: file,
+      code: 500,
+      message: `Internal Server Error`
+    });
+  }
+
+
+  if (result === "ENOENT") {
+    return res.status(404).json({
+      path: file,
+      code: 404,
+      message: `File doesn't exist`
+    });
+  }
+
+  if (result === "EACCES") {
+    return res.status(403).json({
+      path: file,
+      code: 403,
+      message: `Forbidden`
+    });
+  }
+
+  if (result === "EISDIR") {
+    return res.status(500).json({
+      path: file,
+      code: 500,
+      message: `Internal Server Error`
+    });
+  }
+
+  res.header("Content-Type", "text/plain;charset=UTF-8");
+  res.status(200).send(result);
+});
+
+
+
+
+
+// ======================================================
+// Files Endpoint: /files/create-folder
+// Method: POST
+// This endpoint is to make a new folder in a specific directory
+//
+// ======================================================
+app.post("/files/create-folder", async (req, res) => {
+  const folder = req.query.folder;
+  const result = await makeNewFolder(folder);
+
+  if (ReadOnlyMode === "true") {
+    return res.status(409).json({
+      path: file,
+      code: 409,
+      message: `Read-Only Mode is enabled. Unable to make a new folder.`
+    });
+  }
+
+  if (result === "Existing") {
+    return res.status(204).json({
+      path: folder,
+      code: 204,
+      message: `The folder already exists.`
+    });
+  }
+
+  if (result === "Success") {
+    return res.status(200).json({
+      path: folder,
+      code: 200,
+      message: `Successfully made a new folder!`
+    });
+  }
+
+  if (result === "FAILED") {
+    return res.status(500).json({
+      path: folder,
+      code: 500,
+      message: `Internal Server Error`
+    });
+  }
+
+  if (result === "ENOENT") {
+    return res.status(404).json({
+      path: folder,
+      code: 404,
+      message: `Folder doesn't exist`
+    });
+  }
+
+  if (result === "EACCES") {
+    return res.status(403).json({
+      path: folder,
+      code: 403,
+      message: `Forbidden`
+    });
+  }
+
+  if (result === "EISDIR") {
+    return res.status(500).json({
+      path: folder,
+      code: 500,
+      message: `Internal Server Error`
+    });
+  }
+
+  res.header("Content-Type", "text/plain;charset=UTF-8");
+  res.status(200).send(result);
+});
+
+
+
+
+// ======================================================
+// Files Endpoint: /files/delete
+// Method: POST
+// This endpoint is to write delete a fire/directory
+//
+// ======================================================
+app.post("/files/delete", async (req, res) => {
+  const file = req.query.file;
+
+  const result = await deleteFileDirectory(file);
+
+  if (ReadOnlyMode === "true") {
+    return res.status(409).json({
+      path: file,
+      code: 409,
+      message: `Read-Only Mode is enabled. Unable to delete file/directory.`
+    });
+  }
+
+
+  if (result === "Success") {
+    return res.status(200).json({
+      path: file,
+      code: 200,
+      message: `Successfully deleted file/directory`
+    });
+  }
+
+  if (result === "FAILED") {
+    return res.status(500).json({
+      path: file,
+      code: 500,
+      message: `Internal Server Error`
+    });
+  }
+
+
+  if (result === "ENOENT") {
+    return res.status(404).json({
+      path: file,
+      code: 404,
+      message: `File/Directory doesn't exist.`
+    });
+  }
+
+  if (result === "EACCES") {
+    return res.status(403).json({
+      path: file,
+      code: 403,
+      message: `Forbidden`
+    });
+  }
+
+  if (result === "EISDIR") {
+    return res.status(500).json({
+      path: file,
+      code: 500,
+      message: `Internal Server Error`
+    });
+  }
+
+  res.header("Content-Type", "text/plain;charset=UTF-8");
+  res.status(200).send(result);
+
+});
+
+
+
+
+
+
+
+
+
 
 
 
