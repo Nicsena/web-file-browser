@@ -50,7 +50,7 @@ async function getFiles(directory) {
     // Read Directory and Loop through files.
     items.forEach((item) => {
 
-      // Get Stats for and push them to a array.
+      // Get Stats for each file/directory.
       const iteminfo = fs.statSync(fullPath + item.name);
       const json = {
         name: item.name,
@@ -67,6 +67,7 @@ async function getFiles(directory) {
         },
       };
 
+      // Push file/directory with some of information to array.
       list.push(json);
     });
 
@@ -153,11 +154,14 @@ async function writeContentToFile(file, content) {
   try {
 
     if (!fs.existsSync(fullPath)){
-      fs.writeFileSync(fullPath, decodeURIComponent(content), { encoding: "utf8", flag: 'w'});
+      await fs.writeFileSync(fullPath, decodeURIComponent(content), { encoding: "utf8", flag: 'w'});
       return "NewFile-Success"
     }
 
-    return "Success";
+    if (fs.existsSync(fullPath)){
+      await fs.writeFileSync(fullPath, decodeURIComponent(content), { encoding: "utf8", flag: 'w'});
+      return "Success"
+    }
 
   } catch (error) {
     if (error.code === "ENOENT") {
@@ -201,7 +205,7 @@ async function makeNewFolder(folder) {
   try {
 
     if (!fs.existsSync(fullPath)){
-      fs.mkdirSync(fullPath, { recursive: true });
+      await fs.mkdirSync(fullPath, { recursive: true });
       return "Success"
     }
 
@@ -232,8 +236,9 @@ async function makeNewFolder(folder) {
 // ======================================================
 // This function deletes a specified file/directory.
 //
-// Example:
-// deleteFileDirectory("/example")
+// Examples:
+// Directory --> deleteFileDirectory("/example")
+// File --> deleteFileDirectory("/hello.txt")
 // ======================================================
 async function deleteFileDirectory(file) {
   const fullPath = path.join(defaultPath, path.resolve(file));
@@ -260,7 +265,7 @@ async function deleteFileDirectory(file) {
         if(verbose === "true") { console.log (`Deleted Symbolic Link: ${file} - Path: ${fullPath}`)}
         return "Success"
       }
-      
+
       if(item.isDirectory() === true) {
         await fs.rmSync(fullPath, { recursive: true })
         if(verbose === "true") { console.log (`Deleted Folder: ${file} - Path: ${fullPath}`)}
@@ -347,6 +352,10 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/views/index.html");
 });
 
+app.get("/test", (req, res) => {
+  res.sendFile(__dirname + "/views/test.html");
+});
+
 
 
 
@@ -430,7 +439,7 @@ app.get("/files/content", async (req, res) => {
     });
   }
 
-  if (result === "EISDIR") {
+  if (content === "EISDIR") {
     return res.status(500).json({
       path: file,
       code: 500,

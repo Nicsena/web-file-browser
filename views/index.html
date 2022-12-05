@@ -33,6 +33,8 @@ let content = []
 const XMLHttp = new XMLHttpRequest();
 const url = `/files?directory=${directory}`
 
+
+
 XMLHttp.open("GET", url);
 XMLHttp.send();
 
@@ -89,7 +91,7 @@ directory = "/"
 GoToDirectory(directory)
   
 }
-    
+
   
 function GoToDirectory(path) {
 const filesbrowser = document.getElementById("browser")  
@@ -221,7 +223,7 @@ XMLHttp.onreadystatechange = function() {
     
     
     
-    <div id="buttons" name="buttons" class="container-fluid p-2 no-border rounded-top">
+    <div id="bar" name="bar" class="container-fluid p-2 no-border rounded-top">
       <button type="button" onclick="GoHome()" class="btn btn-dark">Go Home</button>
       <button type="button" onclick="GoToDirectory('../')" class="btn btn-dark">Go Back</button>
     </div>

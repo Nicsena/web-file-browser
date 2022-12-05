@@ -11,16 +11,21 @@ color: #ffffff;
 }
 
 #page #header {
-  
   text-align: center;
 }
 
 
 
-#page #container #buttons {
+#page #container #bar {
  background-color: #161616;
-
+ width:100%;
 }
+
+/* #page #container #bar button {
+  float: right;
+  position: relative;
+  margin-left: 10px;
+ } */
 
 #page #container #browser {
   background-color: #161616;
