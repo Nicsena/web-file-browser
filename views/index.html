@@ -26,6 +26,7 @@ window.onload = function () {
 }
  
 let directory = "/";
+let mode = "directory"
  
 function load() {
 const filesbrowser = document.getElementById("browser")   
@@ -94,6 +95,7 @@ GoToDirectory(directory)
 
   
 function GoToDirectory(path) {
+mode = "directory";
 const filesbrowser = document.getElementById("browser")  
 let content = []
 const XMLHttp = new XMLHttpRequest();
@@ -160,6 +162,7 @@ XMLHttp.onreadystatechange = function() {
 
 
 function ViewFile(path) {
+mode = "file";
 const filesbrowser = document.getElementById("browser")  
 let content = []
 const XMLHttp = new XMLHttpRequest();
@@ -208,6 +211,21 @@ XMLHttp.onreadystatechange = function() {
 }
 
 
+function GoBack() {
+
+    // Directory Mode
+    if(mode !== "file") {
+    return GoToDirectory('/'+directory.substring(0, directory.lastIndexOf('/')) + '/../')
+   }
+
+  // File Mode
+  if(mode == "file") {
+    return GoToDirectory('/'+directory.substring(0, directory.lastIndexOf('/')) + '/')
+  }
+
+}
+
+
   </script>
   
   
@@ -226,7 +244,8 @@ XMLHttp.onreadystatechange = function() {
     
     <div id="bar" name="bar" class="container-fluid p-2 no-border rounded-top">
       <button type="button" onclick="GoHome()" class="btn btn-dark">Go Home</button>
-      <button type="button" onclick="GoToDirectory('/'+directory.substring(0, directory.lastIndexOf('/')) + '/../')" class="btn btn-dark">Go Back</button>
+      <!-- <button type="button" onclick="GoToDirectory('/'+directory.substring(0, directory.lastIndexOf('/')) + '/../')" class="btn btn-dark">Go Back</button> -->
+      <button type="button" onclick="GoBack()" class="btn btn-dark">Go Back</button>
     </div>
     
   <div id="browser" name="browser" class="container-fluid p-2 no-border rounded-top">
